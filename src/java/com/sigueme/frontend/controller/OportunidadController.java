@@ -55,8 +55,7 @@ public class OportunidadController implements Serializable {
     private List<Usuario> usuarios;
     private List<EstadoOportunidad> estadosOportunidad;
     private List<Usuario> pruebaUsuarios;
-    
-    
+
     public OportunidadController() {
     }
 
@@ -64,135 +63,139 @@ public class OportunidadController implements Serializable {
     public void init() {
         oportunidad = new OportunidadDeAprendizaje();
         oportunidadUsuario = new OportunidadUsuario();
-        usuario=new Usuario();
+        usuario = new Usuario();
 
     }
-    
-    
+
     public String registrarOportunidad() {
         FacesContext context = FacesContext.getCurrentInstance();
         String redirect = "createOportunity";
         try {
-            this.oportunidadFacadeLocal.create(oportunidad);
-            Usuario u;
-            for (int i = 0; i < usuarios.size(); i++) {
-                OportunidadUsuario ou = new OportunidadUsuario();
-                u = usuarios.get(i);
-                ou.setOportunidadID(oportunidad);
-                ou.setUsuarioID(usuario);
-                ou.setUsuarioID(u);
-                this.oportunidadUsuarioFacadeLocal.create(ou);
+
+            if (this.oportunidad.getFechaInicio().before(this.oportunidad.getFechaFin())) {
+                this.oportunidadFacadeLocal.create(oportunidad);
+                Usuario u;
+                for (int i = 0; i < usuarios.size(); i++) {
+                    OportunidadUsuario ou = new OportunidadUsuario();
+                    u = usuarios.get(i);
+                    ou.setOportunidadID(oportunidad);
+                    ou.setUsuarioID(usuario);
+                    ou.setUsuarioID(u);
+                    this.oportunidadUsuarioFacadeLocal.create(ou);
+                                context.addMessage(
+                    null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "La Oportunidad se ha registrado correctamente"));
+                                redirect = "principalOportunity?faces-redirect=true";
+                }
+            
+            }else{
+                    context.addMessage(
+                    null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia", "Verifique que las fechas sea correctas"));
             }
 
-            context.addMessage(
-                    null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "La Oportunidad se ha registrado correctamente"));
 
-            redirect = "principalOportunity?faces-redirect=true";
+
+            
         } catch (Exception e) {
             context.addMessage(
                     null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "No se pudo registrar la oportunidad"));
         }
         return redirect;
     }
-    
-    
 
     public List<OportunidadDeAprendizaje> listarOportunidades() {
-        
-         HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
-         usuario = (Usuario) session.getAttribute("usuario");
-         
-         if(usuario.getRolesUsuario().get(0).getRolID()==1){
-             return this.oportunidadFacadeLocal.misOportunidades(usuario);
-         }else{
-             return this.oportunidadFacadeLocal.listarLider();
-         }
+
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+        usuario = (Usuario) session.getAttribute("usuario");
+
+        if (usuario.getRolesUsuario().get(0).getRolID() == 1) {
+            return this.oportunidadFacadeLocal.misOportunidades(usuario);
+        } else {
+            return this.oportunidadFacadeLocal.listarLider();
+        }
     }//buena pregunta jajaja
+
     /*
     public String sugerencias(){
         return this.oportunidadFacadeLocal.sugerirOportunidad();
     }
-    */
-       
-    public void calificarOportunidad(OportunidadUsuario p){
-        this.oportunidadUsuario=p;
+     */
+
+    public void calificarOportunidad(OportunidadUsuario p) {
+        this.oportunidadUsuario = p;
     }
-    
-    public void calificarOportunidad(){
-        try{
+
+    public void calificarOportunidad() {
+        try {
             this.oportunidadUsuarioFacadeLocal.edit(oportunidadUsuario);
-               FacesContext.getCurrentInstance().addMessage(
+            FacesContext.getCurrentInstance().addMessage(
                     null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "La oportunidad se ha calificado correctamente"));
-        }catch(Exception e){
-               FacesContext.getCurrentInstance().addMessage(
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(
                     null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "La oportunidad no se ha podido calificar"));
         }
     }
-    
-    
-    public void editarOportunidadUsuario(){
-        HttpSession session = (HttpSession)FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+
+    public void editarOportunidadUsuario() {
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
         usuario = (Usuario) session.getAttribute("usuario");
-        try{
+        try {
             this.oportunidadUsuario.setOportunidadID(this.oportunidad);
             this.oportunidadUsuario.setUsuarioID(usuario);
             this.oportunidadUsuarioFacadeLocal.editarOportunidadUsuario(oportunidadUsuario);
-            
+
             FacesContext.getCurrentInstance().addMessage(
                     null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Se ha enviado correctamente la oportunidad"));
-        }catch(Exception e){
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(
-                    null,new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "No se pudo enviar la oportunidad") );
+                    null, new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "No se pudo enviar la oportunidad"));
         }
-        
-       
+
     }
-       
+
     public void editarOportunidad(OportunidadDeAprendizaje oportunidad) {
         this.oportunidad = oportunidad;
         usuarios = new ArrayList<>();
         for (OportunidadUsuario oportunidadesUsuario : oportunidad.getOportunidadesUsuarios()) {
             usuarios.add(oportunidadesUsuario.getUsuarioID());
         }
-        
+
     }
-    
 
     public void editarOportunidad() {
         FacesContext context = FacesContext.getCurrentInstance();
         String redirect = "editOportunity";
-            
+
         try {
-            for (Usuario usu :usuarios) {
+            for (Usuario usu : usuarios) {
                 boolean bandera = false;
-                for (OportunidadUsuario ou: oportunidad.getOportunidadesUsuarios()) {
-                    if(ou.getUsuarioID().getUsuarioID() == usu.getUsuarioID()){
+                for (OportunidadUsuario ou : oportunidad.getOportunidadesUsuarios()) {
+                    if (ou.getUsuarioID().getUsuarioID() == usu.getUsuarioID()) {
                         bandera = true;
                     }
                 }
-                if(!bandera){
+                if (!bandera) {
                     OportunidadUsuario opUsuario = new OportunidadUsuario();
                     opUsuario.setOportunidadID(oportunidad);
                     opUsuario.setUsuarioID(usu);
                     oportunidad.getOportunidadesUsuarios().add(opUsuario);
                 }
             }
-     
+
             for (int i = 0; i < oportunidad.getOportunidadesUsuarios().size(); i++) {
                 boolean bandera = true;
                 for (Usuario usuario : usuarios) {
-                    if(usuario.getUsuarioID() == oportunidad.getOportunidadesUsuarios().get(i).getUsuarioID().getUsuarioID()){
+                    if (usuario.getUsuarioID() == oportunidad.getOportunidadesUsuarios().get(i).getUsuarioID().getUsuarioID()) {
                         bandera = false;
                     }
                 }
-                if(bandera){
+                if (bandera) {
                     oportunidad.getOportunidadesUsuarios().remove(i);
                     i--;
                 }
             }
-            
+
             this.oportunidadFacadeLocal.edit(oportunidad);
-          
+
             context.addMessage(
                     null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "La Oportunidad se ha modificado correctamente"));
 
@@ -210,7 +213,7 @@ public class OportunidadController implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
 
         try {
-            
+
             this.oportunidad.setEstado(false);
             this.oportunidadFacadeLocal.edit(this.oportunidad);
 
@@ -226,10 +229,11 @@ public class OportunidadController implements Serializable {
     public List<OportunidadUsuario> listarOportunidadesUsuarios() {
         return this.oportunidadUsuarioFacadeLocal.findAll();
     }
-   
-    public int calcularDias(OportunidadUsuario ou){
-       return this.oportunidadFacadeLocal.diasFaltantes(ou);
-   }
+
+    public int calcularDias(OportunidadUsuario ou) {
+        return this.oportunidadFacadeLocal.diasFaltantes(ou);
+    }
+
     //ese método va es en el facade de oportunidadUsuario 
     public OportunidadDeAprendizaje getOportunidad() {
         return oportunidad;
@@ -251,7 +255,6 @@ public class OportunidadController implements Serializable {
     //y venga en dodne es que llamamo el metodo de sugerir oportunidad? jjaajmiRA//lo puede poner donde tu corazon considere jajajaj
     //ajjajajaja se da garra andres ajajajjajaj att:kathe
     //
-    
 
     public void setOportunidadUsuario(OportunidadUsuario oportunidadUsuario) {
         this.oportunidadUsuario = oportunidadUsuario;
@@ -299,8 +302,4 @@ public class OportunidadController implements Serializable {
         this.estadosOportunidad = estadosOportunidad;
     }
 
-
-    
-    
-      
 }
