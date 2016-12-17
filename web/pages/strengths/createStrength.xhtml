@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+                <h:form>   
+                <h2>Registrar Fortaleza de Conocimiento</h2>
+                <p:separator/>
+                
+                <p:growl id="growlCreateFortaleza" showDetail="true" sticky="false" life="3000"/> 
+                <p:messages severity="fatal,info,warn"
+                            showDetail="true" showSummary="true"/>
+                <h:panelGrid columns="4">
+                
+                 <p:outputLabel for="categoria" value="Categoría"/>
+                 <p:selectOneMenu id="categoria" value="#{fortalezaController.fortaleza.categoriaID}"
+                                 converter="categoriaConverter" filter="true"
+                                 required="true" requiredMessage="La Categoría es un campo obligatorio">
+                     <f:selectItems var="cate" value="#{fortalezaController.categorias}"
+                                   itemLabel="#{cate.descripcion}" itemValue="#{cate}"/>
+                </p:selectOneMenu>
+                 <p:message for="categoria"/>
+                <p:tooltip for="categoria" value="Seleccione una categoría asociada con la fortaleza de conocimiento" />
+                
+                <p:outputLabel for="nombre" value="Nombre"/>
+                <p:inputText id="nombre" required="true" requiredMessage="El Nombre es un campo obligatorio"
+                             validatorMessage="El nombre es muy corto o contiene caracteres especiales"
+                             value="#{fortalezaController.fortaleza.nombre}">
+                    <f:validateLength minimum="10" maximum="70"/>
+                   <!--<f:validateRegex pattern="^[a-zA-ZñÑáéíóúÁÉÍÓÚ-0-9\#\s]+$"/>-->
+                </p:inputText>
+                <p:message for="nombre" display="icon"/>
+                <p:tooltip for="nombre" value="Escriba el nombre de la fortaleza de conocimiento por favor" />
+                
+                <p:outputLabel for="descripcion" value="Descripcion"/>
+                <p:inputTextarea id="descripcion" rows="5" cols="25"
+                                 required="true" requiredMessage="La Descipción es un campo obligatorio"
+                                 value="#{fortalezaController.fortaleza.descripcion}">
+                    <f:validateLength minimum="15"/>
+                </p:inputTextarea>
+                <p:message for="descripcion" display="icon"/>
+                <p:tooltip for="descripcion" value="Escriba una breve descripción por favor" />
+               
+                <h:column/><h:column/><h:column/><h:column/>
+                
+                <h:commandButton id="createfortaleza" value="Registrar"
+                                 action="#{fortalezaController.registrarFortaleza()}"/>
+                <h:commandButton value="Cancelar" action="principalStrength"/>
+            </h:panelGrid>
+        </h:form>
+                
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

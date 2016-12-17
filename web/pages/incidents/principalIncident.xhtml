@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+                
+            <f:view>    
+                <h:form id="form">
+                <h2>Listado de Incidencia</h2>
+
+                <p:growl id="growlIncidents" showDetail="true" sticky="false" life="2000"/> 
+                <p:messages severity="fatal,info,warn"
+                            showDetail="true" showSummary="true"/>
+
+                <p:separator/>
+                <p:button value="Registrar Incidencia" outcome="createIncident"
+                          icon="ui-icon-sum"
+                          rendered="#{incidenciaController.verificarRol() eq false}"/>
+
+                <p:dataTable id="incidentTable" emptyMessage="No se encontraron resultados"
+                             var="pp" value="#{incidenciaController.listarIncidencia()}"
+                             paginator="true" paginatorPosition="bottom" rows="6">
+
+                    <p:column headerText="Número de Caso" filterBy="#{pp.numeroDeCaso}">
+                        <h:outputText value="#{pp.numeroDeCaso}"/>
+                    </p:column>
+
+                    <p:column headerText="Agente" filterBy="#{pp.usuarioID.apellido} #{pp.usuarioID.nombre}"
+                              rendered="#{incidenciaController.verificarRol() eq false}">
+                        <h:outputText value="#{pp.usuarioID.apellido} #{pp.usuarioID.nombre}"/>
+                    </p:column>
+                    
+                    <p:column headerText="Categoría" filterBy="#{pp.categoriaID.descripcion}">
+                        <h:outputText value="#{pp.categoriaID.descripcion}"/>
+                    </p:column>
+                    
+                    <p:column headerText="Descripción">
+                        <h:outputText value="#{pp.descripcion}"/>
+                    </p:column>
+
+                    <p:column headerText="Errores Frecuentes">
+                        <p:dataList value="#{pp.erroresIncidencia}"
+                                    type="definition"  var="err"
+                                    emptyMessage="No se registraron errores frecuentes">
+
+                            <h:outputText value="#{err.descripcion}"/>
+                        </p:dataList>
+                    </p:column>
+
+                    <p:column headerText="Acciones" width="130">
+                        <p:commandButton value="ver" oncomplete="PF('verIncidencia').show()" update="modalVerIncidencia"
+                                         actionListener="#{incidenciaController.editarIncidencia(pp)}"/>
+                        
+                        <p:commandButton icon="ui-icon-pencil" oncomplete="PF('editarIncidencia').show()" update="modalIn"
+                                         actionListener="#{incidenciaController.editarIncidencia(pp)}"
+                                         rendered="#{incidenciaController.verificarRol() eq false}"/>
+                                         
+                        <p:commandButton icon="ui-icon-close" update="incidentTable, form"
+                                         action="#{incidenciaController.eliminarIncidencia(pp)}"
+                                         rendered="#{incidenciaController.verificarRol() eq false}">
+                                         
+                            <p:confirm header="Confirmación" message="¿Está seguro de eliminar esta incidencia?"
+                                       icon="ui-icon-alert"/>
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </f:view>
+            <h:form>
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </p:confirmDialog>
+            </h:form>
+        
+        <f:view>
+            <p:dialog id="modalIn" header="Editar Incidencia" resizable="false" 
+                      closeOnEscape="true" draggable="false"
+                      widgetVar="editarIncidencia" modal="true"
+                      showEffect="fade" hideEffect="fade" >
+                <h:form id="f">
+                    <h:panelGrid columns="4">
+                <p:outputLabel for="numCaso" value="Número de caso"/> 
+                <p:inputMask id="numCaso" mask="999999" 
+                             required="true" requiredMessage="El número de Caso es un campo obligatorio"
+                             value="#{incidenciaController.incidencia.numeroDeCaso}">
+                </p:inputMask>
+                <p:message for="numCaso"/>
+                <p:tooltip for="numCaso" value="Escriba el número de caso proveniente de Aranda Software" />
+                
+                <p:outputLabel for="agente" value="Agente"/>
+                <p:selectOneMenu id="agente" value="#{incidenciaController.incidencia.usuarioID}" 
+                                 converter="usuarioConverter" required="true" filter="true">
+                    <f:selectItems value="#{incidenciaController.usuarios}" var="item"
+                                   itemLabel="#{item.nombre} #{item.apellido}" itemValue="#{item}"/>
+                </p:selectOneMenu>
+                <p:message for="agente"/>
+                <p:tooltip for="agente" value="Seleccione el agente relacionado con la incidencia"/>
+                
+                <p:outputLabel for="categoria" value="Categoría"/>
+                <p:selectOneMenu id="categoria" value="#{incidenciaController.incidencia.categoriaID}"
+                                 converter="categoriaConverter" required="true" filter="true"> 
+                    <f:selectItems value="#{incidenciaController.categorias}" var="ser"
+                                   itemLabel="#{ser.descripcion}" itemValue="#{ser}"/>
+                </p:selectOneMenu>
+                <p:message for="categoria"/>
+                <p:tooltip for="categoria" value="Seleccione la categoría en la cual falló el agente" />
+                               
+                <p:outputLabel for="error" value="Error Frecuente"/>
+                <p:selectCheckboxMenu label="Errores" value="#{incidenciaController.incidencia.erroresIncidencia}"
+                                      id="error" converter="errorConverter" filter="true">
+                    <f:selectItems value="#{incidenciaController.errores}" var="err"
+                                   itemLabel="#{err.descripcion}" itemValue="#{err}"/>
+                    
+                </p:selectCheckboxMenu>
+                <p:message for="error"/>
+                <p:tooltip for="error" value="Seleccione uno o varios errores en los que falló el agente" />
+                              
+                <p:outputLabel for="descripcion" value="Descripción"/> 
+                <p:inputTextarea id="descripcion" required="true" requiredMessage="Descripción es un Campo Obligatorio"
+                                 value="#{incidenciaController.incidencia.descripcion}" scrollHeight="1">
+                    <f:validateLength minimum="10"/>
+                </p:inputTextarea>
+                <p:message for="descripcion"/>
+                <p:tooltip for="descripcion" value="Escriba una breve descripción conforme a la incidencia"/>
+                
+                <h:column/><h:column/><h:column/><h:column/>
+                <p:commandButton value="Cerrar" onclick="PF('editarIncidencia').hide()"
+                                 style="float: right;" immediate="true"/>
+                
+                <p:commandButton value="Guardar cambios" action="#{incidenciaController.editarIncidencia()}"
+                                 id="bb" update=":form:growlIncidents, :form:incidentTable, f:"
+                                 style="float: right;"/>
+                
+            </h:panelGrid>
+                </h:form>
+            </p:dialog> 
+            
+            <p:dialog id="modalVerIncidencia" header="Ver Incidencia" 
+                          modal="true" widgetVar="verIncidencia" draggable="false"
+                          showEffect="fade" hideEffect="fade" resizable="false"
+                          height="300" width="500" minHeight="150">
+                
+                    <p:outputPanel>
+                        <p:panelGrid columns="2">
+                    <f:facet name="header">Detalle</f:facet>
+                              
+                        <h:outputText value="Número de Caso"/>
+                        <h:outputText value="#{incidenciaController.incidencia.numeroDeCaso}"/>
+                        
+                        <h:outputText value="Agente"
+                                      rendered="#{incidenciaController.verificarRol() eq false}"/>
+                        <h:outputText value="#{incidenciaController.incidencia.usuarioID.nombre}
+                                             #{incidenciaController.incidencia.usuarioID.apellido}"
+                                      rendered="#{incidenciaController.verificarRol() eq false}"/>
+                        
+                        <h:outputText value="Categoría"/>
+                        <h:outputText value="#{incidenciaController.incidencia.categoriaID.descripcion}"/> 
+                
+                        <h:outputText value="Descripción"/>
+                        <h:outputText value="#{incidenciaController.incidencia.descripcion}"/>
+                        
+                        <h:outputText value="Errores Frecuentes"/>
+                        <p:dataList value="#{incidenciaController.incidencia.erroresIncidencia}"
+                                    type="definition"  var="err"
+                                    emptyMessage="No se registraron errores frecuentes">
+
+                            <h:outputText value="#{err.descripcion}"/>
+                        </p:dataList>
+                        
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:dialog> 
+        </f:view>        
+                
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

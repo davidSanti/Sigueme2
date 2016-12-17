@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+                <h2>Calificar Oportunidades</h2>
+                <h:form>
+                    <p:dataTable var="oportunidad" value="#{oportunidadController.listarOportunidadesUsuarios()}"
+                                 paginator="true" rows="10">
+                        <p:column headerText="Usuario" filterBy="#{oportunidad.usuarioID.nombre}">
+                            <h:outputText value="#{oportunidad.usuarioID.nombre}
+                                          #{oportunidad.usuarioID.nombre}"/>
+                        </p:column>
+                        <p:column headerText="Nombre" filterBy="#{oportunidad.oportunidadID.nombre}">
+                            <h:outputText value="#{oportunidad.oportunidadID.nombre}"/>
+                        </p:column>
+                        <p:column headerText="Estado" filterBy="#{oportunidad.oportunidadID.descripcion}">
+                            <h:outputText value="#{oportunidad.estadoID.descripcion}"/>
+                        </p:column>
+                        
+                        <p:column headerText="Días restantes" filterBy="#{oportunidadController.calcularDias(oportunidad)}">
+                             <h:outputText value="#{oportunidadController.calcularDias(oportunidad)}"/>
+                               
+                        </p:column>
+                        <p:column headerText="Acciones">
+                            <p:commandButton value="ver" oncomplete="PF('verOportunidad').show()" 
+                                             update="modalVerOportunidad"
+                                             actionListener="#{oportunidadController.calificarOportunidad(oportunidad)}"/>
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+
+
+                <p:dialog id="modalVerOportunidad" header="Ver Oportuniad" 
+                          modal="true" widgetVar="verOportunidad" draggable="false"
+                          showEffect="fade" hideEffect="fade" resizable="false"
+                          height="350" width="500" minHeight="150">
+
+                    <p:outputPanel>
+
+                        <h:form id="ff">
+                            <p:growl id="growlCalificarOportunities" showDetail="true" sticky="false" life="3000"/> 
+                            <p:messages severity="fatal,info,warn"
+                                        showDetail="true" showSummary="true"/>
+                            <f:facet name="header">Detalle</f:facet>
+                            <p:panelGrid columns="2">
+
+                                <h:outputText value="Nombre" />
+                                <h:outputText id="nombre" value="#{oportunidadController.oportunidadUsuario.oportunidadID.nombre}"/>
+
+                                <h:outputText value="Agente" />
+                                <h:outputText id="usuario" value="#{oportunidadController.oportunidadUsuario.usuarioID.nombre}
+                                              #{oportunidadController.oportunidadUsuario.usuarioID.apellido}"/>
+
+                                <h:outputText value="Descripcion" />
+                                <h:outputText id="descripcion" value="#{oportunidadController.oportunidadUsuario.descripcion}"/>
+
+                                <h:outputText value="Estado" />
+                                <p:selectOneMenu id="estado" value="#{oportunidadController.oportunidadUsuario.estadoID}"
+                                                 converter="estadosOportunidadConverter" required="true" filter="true"> 
+                                    <f:selectItems value="#{oportunidadController.estadosOportunidad}" var="ser"
+                                                   itemLabel="#{ser.descripcion}" itemValue="#{ser}"/>
+                                </p:selectOneMenu>
+                                
+                                
+                                <h:column/> <h:column/>
+<!--lo puede meter en la ventana modal donde van a subir las tareas, que ahi usted le pasa como valor una oportunidad usuario y ya, ahi decimos que se llama un marica procedimiento-->
+                                <p:commandButton  value="Calificar" action="#{oportunidadController.calificarOportunidad()}"
+                                                  update="ff:growlCalificarOportunities"
+                                                  rendered="#{oportunidadController.oportunidadUsuario.estadoID.estadoID==2 eq false}"/>
+
+                                <p:commandButton value="Cerrar" immediate="true"
+                                                 onclick="PF('verOportunidad').hide()" />
+
+                            </p:panelGrid>
+
+
+                        </h:form>
+                    </p:outputPanel>
+                </p:dialog> 
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

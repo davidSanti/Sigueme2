@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+                <f:view>
+                    <h:form id="form">
+                    <h2>Listados de Fortalezas de Conocimiento</h2>
+                    <p:separator/>
+                    
+                    <p:button value="Registrar Fortaleza" outcome="createStrength"/>
+                    
+                    <p:growl id="growlSt" showDetail="true" sticky="false" life="3000"/> 
+                    <p:messages severity="fatal,info,warn"
+                                showDetail="true" showSummary="true"/>
+                    
+                    <p:dataTable id="StrengthTable" emptyMessage="No se encontraron resultados"
+                                 var="st" value="#{fortalezaController.listarFortalezas()}"
+                                 paginator="true" paginatorPosition="bottom" rows="10">
+                        
+                        <p:column headerText="Autor" filterBy="#{st.usuarioID.apellido} #{st.usuarioID.nombre}">
+                            <h:outputText value="#{st.usuarioID.apellido} #{st.usuarioID.nombre}"/>                            
+                        </p:column>
+                        
+                        <p:column headerText="Categoría" filterBy="#{st.categoriaID.descripcion}">
+                            <h:outputText value="#{st.categoriaID.descripcion}"/>                            
+                        </p:column>
+                        
+                        <p:column headerText="Nombre" filterBy="#{st.nombre}">
+                            <h:outputText value="#{st.nombre}"/>                            
+                        </p:column>
+                      
+                        <p:column headerText="Acciones" width="130">
+                            
+                            <p:commandButton value="ver" oncomplete="PF('verFortaleza').show()" update="modalVerFortaleza"
+                                             actionListener="#{fortalezaController.editarFortaleza(st)}"/>
+                             
+                            <p:commandButton icon="ui-icon-pencil"
+                                             actionListener="#{fortalezaController.editarFortaleza(st)}"
+                                             oncomplete="PF('editarFortaleza').show()" update="modalF"
+                                             rendered="#{fortalezaController.verificarUsuario()== st.usuarioID.usuarioID eq true}"/>                       
+                          
+                            <p:commandButton icon="ui-icon-close" update="StrengthTable, form:growlSt"
+                                             action="#{fortalezaController.eliminarFortaleza(st)}"
+                                             rendered="#{fortalezaController.verificarUsuario()== st.usuarioID.usuarioID eq true}">
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar esta fortaleza de conocimiento?"/>
+                            </p:commandButton>
+                            
+                        </p:column>
+                        
+                    </p:dataTable>
+                </h:form>
+                    <h:form>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>    
+                 </f:view>
+              
+            <f:view>
+            <p:dialog id="modalF" header="Editar Fortaleza" resizable="false" 
+                              closeOnEscape="true" draggable="false"
+                              widgetVar="editarFortaleza" modal="true"
+                              width="700">
+                <h:form id="f">    
+                   
+                <p:growl id="growlEditFortaleza" showDetail="true" sticky="false" life="1500"/> 
+                <p:messages severity="fatal,info,warn"
+                            showDetail="true" showSummary="true"/>
+                <h:messages showDetail="true" showSummary="true"/>
+                <h:panelGrid columns="4">
+
+                    <p:outputLabel for="categoria" value="Categoria"/>
+                    <p:selectOneMenu id="categoria" value="#{fortalezaController.fortaleza.categoriaID}"
+                                     converter="categoriaConverter" required="true" filter="true">
+                        <f:selectItems var="cate" value="#{fortalezaController.categorias}"
+                                       itemLabel="#{cate.descripcion}" itemValue="#{cate}"/>
+                    </p:selectOneMenu>
+                    <p:message for="categoria" display="icon"/>
+                    <p:tooltip for="categoria" value="Seleccione la categoría por favor" />
+
+                    <p:outputLabel for="nombre" value="Nombre"/>
+                    <p:inputText id="nombre" required="true" requiredMessage="Campo Obligatorio"
+                                 validatorMessage="El Nombre es demasiado corto o contiene caracteres especiales"
+                                 value="#{fortalezaController.fortaleza.nombre}">
+                        <f:validateLength minimum="10" maximum="70"/>
+                       <!--<f:validateRegex pattern="^[a-zA-ZñÑáéíóúÁÉÍÓÚ-0-9\#\s]+"/>-->
+                    </p:inputText>
+                    <p:message for="nombre" display="icon"/>
+                    <p:tooltip for="nombre" value="Escriba el nombre de la fortaleza de conocimiento por favor" />
+
+                    <p:outputLabel for="descripcion" value="Descripción"/>
+                    <p:inputTextarea id="descripcion" required="true" requiredMessage="Campo Obligatorio"
+                                     validatorMessage="Verifique que el largo corresponda con el mínimo que es 15 caracteres"
+                                     rows="15" cols="55" 
+                                     value="#{fortalezaController.fortaleza.descripcion}">
+                         <f:validateLength minimum="15"/>
+            
+                    </p:inputTextarea>
+                    <p:message for="descripcion" display="icon"/>
+                    <p:tooltip for="descripcion" value="Escriba una breve descripción por favor" />
+
+                    <h:column/><h:column/><h:column/><h:column/>
+                    
+                    <p:commandButton value="Cerrar" immediate="true"
+                                     onclick="PF('editarFortaleza').hide()"
+                                     style="float: right;"/>
+                    
+                    <p:commandButton id="editSFortaleza" value="Guardar cambios"
+                                     action="#{fortalezaController.editarFortaleza()}"
+                                     update=":form:StrengthTable, :form:growlSt, f:growlEditFortaleza"
+                                     style="float: right;"/>
+                                                   
+                    
+                    
+                     </h:panelGrid>
+                </h:form>
+                
+            </p:dialog>
+                
+                <p:dialog id="modalVerFortaleza" header="Ver Oportunidad" 
+                          modal="true" widgetVar="verFortaleza" draggable="false"
+                          showEffect="fade" hideEffect="fade" resizable="false"
+                          height="300" width="500" minHeight="150">
+                
+                    <p:outputPanel>
+                        <p:panelGrid columns="2">
+                    <f:facet name="header">Detalle</f:facet>
+                              
+                        <h:outputText value="Autor"/>
+                        <h:outputText value="#{fortalezaController.fortaleza.usuarioID.nombre}
+                                      #{fortalezaController.fortaleza.usuarioID.apellido}"/>
+                        
+                        <h:outputText value="Nombre"/>
+                        <h:outputText value="#{fortalezaController.fortaleza.nombre}"/> 
+                
+                        <h:outputText value="Categoría"/>
+                        <h:outputText value="#{fortalezaController.fortaleza.categoriaID.descripcion}"/>
+                        
+                        <h:outputText value="Descripción"/>
+                        <h:outputText value="#{fortalezaController.fortaleza.descripcion}"/>
+                        
+                    </p:panelGrid>
+                </p:outputPanel>
+            </p:dialog> 
+                
+            </f:view>
+            </ui:define>
+           
+        </ui:composition>
+
+    </body>
+</html>

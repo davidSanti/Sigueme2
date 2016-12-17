@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+            
+            <h:form>
+            <h2>Registrar Incidencia</h2>
+            <p:separator/>
+                
+            <p:growl id="growlCreateIncident" showDetail="true" sticky="false" life="3000"/> 
+            <p:messages severity="fatal,info,warn"
+                        showDetail="true" showSummary="true"/>
+            
+            <h:panelGrid columns="4">
+                <p:outputLabel for="numCaso" value="Número de caso"/> 
+                <p:inputMask id="numCaso" mask="999999"
+                             required="true" requiredMessage="El número de Caso es un campo obligatorio"
+                             value="#{incidenciaController.incidencia.numeroDeCaso}">
+                </p:inputMask>
+                <p:message for="numCaso" display="icon"/>
+                <p:tooltip for="numCaso" value="Escriba el número de caso proveniente de Aranda Software" />
+                
+                <p:outputLabel for="agente" value="Agente"/>
+                <p:selectOneMenu id="agente" value="#{incidenciaController.incidencia.usuarioID}" 
+                                 converter="usuarioConverter" required="true" filter="true">
+                    <f:selectItems value="#{incidenciaController.usuarios}" var="item"
+                                   itemLabel="#{item.nombre} #{item.apellido}" itemValue="#{item}"/>
+                </p:selectOneMenu>
+                <p:message for="agente"/>
+                <p:tooltip for="agente" value="Seleccione el agente relacionado con la incidencia"/>
+                
+                <p:outputLabel for="categoria" value="Categoría"/>
+                <p:selectOneMenu id="categoria" value="#{incidenciaController.incidencia.categoriaID}"
+                                 converter="categoriaConverter" required="true" filter="true"> 
+                    <f:selectItems value="#{incidenciaController.categorias}" var="ser"
+                                   itemLabel="#{ser.descripcion}" itemValue="#{ser}"/>
+                </p:selectOneMenu>
+                <p:message for="categoria" display="icon"/>
+                <p:tooltip for="categoria" value="Seleccione la categoría en la cual falló el agente" />
+                               
+                <p:outputLabel for="error" value="Error Frecuente"/>
+                <p:selectCheckboxMenu label="Errores" value="#{incidenciaController.incidencia.erroresIncidencia}"
+                                      id="error" converter="errorConverter" filter="true">
+                    <f:selectItems value="#{incidenciaController.errores}" var="err"
+                                   itemLabel="#{err.descripcion}" itemValue="#{err}"/>
+                    
+                </p:selectCheckboxMenu>
+                <p:message for="error"/>
+                <p:tooltip for="error" value="Seleccione uno o varios errores en los que falló el agente" />
+                              
+                <p:outputLabel for="descripcion" value="Descripcion"/> 
+                <p:inputTextarea id="descripcion" required="true" requiredMessage="Descripción es un Campo Obligatorio"
+                                 value="#{incidenciaController.incidencia.descripcion}" scrollHeight="1">
+                    <f:validateLength minimum="10"/>
+                </p:inputTextarea>
+                <p:message for="descripcion" display="icon"/>
+                <p:tooltip for="descripcion" value="Escriba una breve descripción conforme a la incidencia"/>
+                
+                <h:column/><h:column/><h:column/><h:column/>
+                
+                <h:commandButton id="bb" value="Registrar"
+                                 action="#{incidenciaController.registrarIncidencia()}"/>
+                <h:commandButton value="Cancelar" action="principalIncident"/>
+            </h:panelGrid>
+        </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

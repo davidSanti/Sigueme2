@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+                
+        <h:form>
+            
+            <h2>Registrar Usuario</h2>
+            <p:separator/>
+            
+            <p:growl id="growlCreateUser" showDetail="true" sticky="false" life="3000"/> 
+            <p:messages severity="fatal,info,warn"
+                        showDetail="true" showSummary="true"/>
+            
+            <h:panelGrid columns="4">
+                
+                <p:outputLabel for="cedula" value="Cedula"/>
+                <p:inputText id="cedula" required="true" requiredMessage="La Cedula es un campo obligatorio"
+                             validatorMessage="La cedula no debe contener letras, espacios o guiones"
+                             pt:type="number" maxlength="10"
+                             value="#{usuarioController.usuario.cedula}">
+                    <f:validateLength minimum="7" maximum="10"/>
+                </p:inputText>
+                <p:message for="cedula" display="icon"/>
+                <p:tooltip for="cedula" value="Escriba el número de su documento por favor"/>
+                
+                <p:outputLabel  for="nombre" value="Nombre"/>
+                <p:inputText id="nombre" required="true" requiredMessage="El Nombre es un campo obligatorio"
+                             validatorMessage="El nombre no debe contener números o caracteres especiales"
+                             value="#{usuarioController.usuario.nombre}" maxlength="25">
+                    <f:validateLength minimum="3" maximum="25"/>
+                    <f:validateRegex pattern="^[a-zA-Z\s]+$"/>
+                </p:inputText>
+                <p:message for="nombre" display="icon"/>
+                <p:tooltip for="nombre" value="Escriba su nombre por favor"/>
+                
+                <p:outputLabel  for="apellido" value="Apellidos"/>
+                <p:inputText id="apellido" required="true" requiredMessage="El Apellido es un campo obligatorio"
+                             validatorMessage="El apellido no debe contener números o caracteres especiales"
+                             value="#{usuarioController.usuario.apellido}" maxlength="25">
+                    <f:validateLength minimum="3" maximum="25"/>
+                   <f:validateRegex pattern="^[a-zA-Z\s]+$"/>
+                </p:inputText>
+                <p:message for="apellido" display="icon"/>
+                <p:tooltip for="apellido" value="Escriba sus apellidos completos por favor"/>
+                
+                <p:outputLabel  for="email" value="Correo"/>
+                <p:inputText id="email" value="#{usuarioController.usuario.email}" 
+                             validatorMessage="Escriba una direccion de correo electrónico valida"
+                             pt:type="email" maxlength="35">
+                    <f:validateLength minimum="15" maximum="35"/> 
+                </p:inputText>
+                <p:message for="email" display="icon"/>
+                <p:tooltip for="email" value="Escriba su correo electrónico de la Universidad Javeriana por favor"/>
+                
+                <p:outputLabel  for="password" value="Contraseña"/>
+                <p:password id="password" required="true" requiredMessage="La Contraseña es un campo obligatorio"
+                            validatorMessage="La contraseña debe tener entre 8 y 16 carácteres"
+                            weakLabel="débil" strongLabel="fuerte" goodLabel="bien"
+                            feedback="true" promptLabel="Escriba su contraseña"
+                            value="#{usuarioController.usuario.clave}" maxlength="16">
+                    <f:validateLength minimum="8" maximum="16"/> 
+                </p:password>
+                <p:message for="password" display="icon"/>
+                <p:tooltip for="password" value="La contraseña debe tener entre 8 y 16 carácteres"/>
+                
+                <p:outputLabel for="roles" value="Rol"/>
+                <p:selectManyCheckbox id="roles" value="#{usuarioController.usuario.rolesUsuario}"
+                                      converter="rolConverter" required="true"
+                                      requiredMessage="El rol es un campo obligatorio">
+                    <f:selectItems var="rol" value="#{usuarioController.roles}"
+                                   itemLabel="#{rol.descripcion}" itemValue="#{rol}"/>
+                    
+                </p:selectManyCheckbox>
+                <p:message for="roles" display="icon"/>
+                <p:tooltip for="roles" value="Elija solo un rol por favor"/>
+                                                   
+                <h:commandButton value="Registrar"
+                                 action="#{usuarioController.registrarUsuario()}"/>
+                
+            </h:panelGrid>
+        </h:form>
+                
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

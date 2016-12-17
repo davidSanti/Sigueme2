@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+              
+                <h:form>
+                    <h2>Editar Oportunidades de Aprendizaje</h2>
+                    <p:separator/>
+                    <p:growl id="growlEditOportunities" showDetail="true" sticky="false" life="3000"/> 
+                    <p:messages severity="fatal,info,warn"
+                                showDetail="true" showSummary="true"/>
+                    
+                        <p:outputLabel for="nombre" value="Nombre"/>
+                        <p:inputText id="nombre" required="true" requiredMessage="El Nombre es un campo obligatorio"
+                                     validatorMessage="El nombre de la oportunidad no puede ser demasiado corto"
+                                     value="#{oportunidadController.oportunidad.nombre}">
+                            <f:validateLength minimum="10" maximum="50"/>
+                        </p:inputText>
+                        <p:message for="nombre"/>
+                        <p:tooltip for="nombre" value="Escriba el nombre que va a tener la oportunidad de aprendizaje"/>
+                        
+                        <p:outputLabel for="fechaInicio" value="Fecha de Inicio"/>
+                        <p:calendar id="fechaInicio" required="true" requiredMessage="La Fecha de Inicio es un campo obligatorio"
+                                    value="#{oportunidadController.oportunidad.fechaInicio}" pattern="dd/MM/yyyy HH:mm:ss">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                        </p:calendar>
+                        <p:message for="fechaInicio"/>
+                        <p:tooltip for="fechaInicio" value="Especifique en este campo la fecha y hora de inicio para la oportunidad"/>
+                          
+                        <p:outputLabel for="fechaFin" value="Fecha de Finalización"/>
+                        <p:calendar id="fechaFin" required="true" requiredMessage="La Fecha de Finalización es un campo obligatorio"
+                                    value="#{oportunidadController.oportunidad.fechaFin}" pattern="dd/MM/yyyy HH:mm:ss">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                        </p:calendar>
+                        <p:message for="fechaFin"/>
+                        <p:tooltip for="fechaFin" value="Especifique en este campo la fecha y hora de finaización para la oportunidad"/>
+                     
+                        <p:outputLabel for="tipos" value="Tipo"/>
+                        <p:selectOneMenu id="tipos" required="true" requiredMessage="La Descripción es un campo obligatorio"
+                                         value="#{oportunidadController.oportunidad.tipoOportunidadID}"
+                                         converter="tipoOportunidadConverter">
+                            <f:selectItems var="tipo" value="#{oportunidadController.tiposDeOportunidad}"
+                                           itemLabel="#{tipo.descripcion}" itemValue="#{tipo}"/>
+                        </p:selectOneMenu>
+                        <p:message for="tipos"/>
+                        <p:tooltip for="tipos" value="Seleccione el tipo de oportunidad"/>
+                        
+                        <p:outputLabel for="usuarios" value="Agentes"/>
+                        <p:selectCheckboxMenu label="Agentes" id="usuarios" required="true" requiredMessage="Debe seleccionar al menos un agente para la oportunidad de aprendizaje"
+                                              value="#{oportunidadController.usuarios}"
+                                              converter="usuarioConverter">
+                            <f:selectItems var="user" value="#{usuarioController.listarUsuarios()}"
+                                           itemLabel="#{user.apellido} #{user.nombre}" itemValue="#{user}"/>
+                            
+                        </p:selectCheckboxMenu>
+                        <p:message for="usuarios"/>
+                        <p:tooltip for="usuarios" value="Selecione al menos un agente para la oportunidad de aprendizaje"/>
+                        
+                        <p:outputLabel for="descripcion" value="Descripción"/>
+                        <p:inputTextarea id="descripcion" required="true" requiredMessage="La Descripción es un campo obligatorio"
+                                         value="#{oportunidadController.oportunidad.descripcion}">
+                            <f:validateLength minimum="10"/>
+                        </p:inputTextarea>
+                        <p:message for="descripcion"/>
+                        <p:tooltip for="descripcion" value="Especifique en este campo lo que debe realizar el agente"/>
+                           
+                        <h:commandButton value="Enviar" action="#{oportunidadController.editarOportunidad()}"/>
+                    
+                    </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

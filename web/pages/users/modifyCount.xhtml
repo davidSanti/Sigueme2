@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+               
+                        <h:form id="fo">
+                            
+                            <p:growl id="growlmoUser" showDetail="true" sticky="false" life="1500"/> 
+                            <p:messages severity="fatal,info,warn"
+                                        showDetail="true" showSummary="true"/>
+                            <h:messages showDetail="true" showSummary="true"/>
+                            <h:panelGrid columns="4">
+                                
+                                <p:outputLabel for="cedula" value="Cedula"/>
+                                <p:inputText   id="cedula" required="true" disabled="true" maxlength="10"
+                                               value="#{menuController.usuario.cedula}">
+                                    <f:validateLength minimum="8" maximum="10"/>
+                                </p:inputText>
+                                <p:message for="cedula"/>
+                                <p:tooltip for="cedula"/>
+
+                                <p:outputLabel for="nombre" value="Nombre"/>
+                                <p:inputText   id="nombre" required="true" requiredMessage="El Nombre es un campo obligatorio"
+                                               validatorMessage="El nombre no debe contener números o caracteres especiales"
+                                               value="#{menuController.usuario.nombre}" maxlength="25">
+                                    <f:validateLength minimum="3" maximum="25" />
+                                </p:inputText>
+                                <p:message for="nombre"/>
+                                <p:tooltip for="nombre" value="Escriba su nombre por favor"/>
+
+                                <p:outputLabel for="apellido" value="Apellido"/>
+                                <p:inputText   id="apellido" required="true" requiredMessage="El Apellido es un campo obligatorio"
+                                               validatorMessage="El apellido no debe contener números o caracteres especiales"
+                                               value="#{menuController.usuario.apellido}" maxlength="25">
+                                    <f:validateLength minimum="3" maximum="25" />
+                                </p:inputText>
+                                <p:message for="apellido"/>
+                                <p:tooltip for="apellido" value="Escriba su apellido completo por favor"/>
+
+                                <p:outputLabel for="email" value="Correo"/>
+                                <p:inputText   id="email" required="true" requiredMessage="El Correo es un campo obligatorio"
+                                               validatorMessage="El correo electrónico no es válido"
+                                               pt:type="email" maxlength="35"
+                                               value="#{menuController.usuario.email}">
+                                    <f:validateLength minimum="15" maximum="35"/>
+                                </p:inputText>
+                                <p:message for="email"/>
+                                <p:tooltip for="email" value="Escriba su correo electrónico de la Universidad Javeriana por favor"/>
+
+                                <p:outputLabel for="password" value="Contraseña"/>
+                                <p:password id="password" required="true" requiredMessage="La Contraseña es un campo obligatorio"
+                                            weakLabel="débil" strongLabel="fuerte" goodLabel="bien"
+                                            feedback="true" promptLabel="Escriba su contraseña"
+                                            value="#{menuController.usuario.clave}" maxlength="16" match="password1" 
+                                            validatorMessage="Las contraseñas no coinciden">
+                                    <f:validateLength minimum="8" maximum="16" />
+                                </p:password>
+                                <p:message for="password"/>
+                                <p:tooltip for="password" value="La contraseña debe tener entre 8 y 16 carácteres"/>
+                                
+                                <p:outputLabel for="password1" value="Confirmar Contraseña"/>
+                                <p:password id="password1" required="true" requiredMessage="La Contraseña es un campo obligatorio"
+                                            weakLabel="débil" strongLabel="fuerte" goodLabel="bien"
+                                            feedback="true" promptLabel="Escriba su contraseña"
+                                            validatorMessage="La contraseña puede ser demasiado corta">
+                                            
+                                    <f:validateLength minimum="8" maximum="16" />
+                                </p:password>
+                                <p:message for="password1"/>
+                                <p:tooltip for="password1" value="La contraseña debe tener entre 8 y 16 carácteres"/>
+
+                                <h:column/><h:column/><h:column/><h:column/>
+
+                                <p:commandButton id="editUser" value="Guardar Cambios"
+                                                 action="#{menuController.editarUsuario()}"
+                                                 update="growlmoUser"/>
+                                                            
+                            </h:panelGrid>
+                        </h:form>
+               
+                
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

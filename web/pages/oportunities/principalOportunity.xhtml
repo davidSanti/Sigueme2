@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./../../resources/templates/plantilla.xhtml">
+
+            <ui:define name="content">
+
+                <f:view>
+                    <h:form id="form">
+                        <h2>Listado de Oportunidades de Aprendizaje</h2>
+                        <p:separator/>
+
+                        <p:growl id="growlOportunities" showDetail="true" sticky="false" life="3000"/> 
+                        <p:messages severity="fatal,info,warn"
+                                    showDetail="true" showSummary="true"/>
+
+                        <p:dataTable id="oportunityTable" emptyMessage="No se encontraron resultados"
+                                     var="oportunity" value="#{oportunidadController.listarOportunidades()}"
+                                     paginator="true" paginatorPosition="bottom" rows="10">
+
+                            <p:column headerText="Nombre" filterBy="#{oportunity.nombre}">
+                                <h:outputText value="#{oportunity.nombre}"/>
+                            </p:column>
+
+                            <p:column headerText="Fecha de Inicio" filterBy="#{oportunity.fechaInicio}">
+                                <h:outputText value="#{oportunity.fechaInicio}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Fecha de Finalización" filterBy="#{oportunity.fechaInicio}">
+                                <h:outputText value="#{oportunity.fechaFin}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Descripción" filterBy="#{oportunity.descripcion}">
+                                <h:outputText value="#{oportunity.descripcion}"/>
+                            </p:column>
+
+                            <p:column headerText="Acciones" width="130" exportable="false">
+                                <p:commandButton value="ver" oncomplete="PF('verOportunidad').show()" update="modalVerOportunidad"
+                                                 actionListener="#{oportunidadController.editarOportunidad(oportunity)}"/>
+
+                                <p:commandButton icon="ui-icon-pencil" oncomplete="PF('editarOportunidad').show()" update="modalO"
+                                                 action="#{oportunidadController.editarOportunidad(oportunity)}"
+                                                 rendered="#{incidenciaController.verificarRol() eq false}"/>
+
+                                <p:commandButton icon="ui-icon-close" update="oportunityTable, form:growlOportunities"
+                                                 action="#{oportunidadController.eliminarOportunidad(oportunity)}"
+                                                 rendered="#{incidenciaController.verificarRol() eq false}">
+                                    <p:confirm header="Confirmación" message="¿Está seguro de eliminar esta oportunidad?"/>
+
+                                </p:commandButton>
+
+                            </p:column>
+
+                        </p:dataTable>
+
+                        <h:commandLink value="Excel">
+
+                            <p:dataExporter type="xls" postProcessor="#{exportController.postProcessXLS}"
+                                            target="oportunityTable" fileName="myexcel" />
+                        </h:commandLink>
+                        <h:commandLink value="PDF">
+
+                            <p:dataExporter type="pdf" target="oportunityTable" fileName="mypdf" />
+                        </h:commandLink>
+                    </h:form>
+
+                    <h:form>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
+
+                </f:view>
+
+                <f:view>
+                    <p:dialog id="modalO" header="Editar Oportunidad" resizable="false" 
+                              closeOnEscape="true" draggable="false"
+                              widgetVar="editarOportunidad" modal="true">
+
+                        <h:form id="f">
+
+                            <p:growl id="growlEditOportunities" showDetail="true" sticky="false" life="3000"/> 
+                            <p:messages severity="fatal,info,warn"
+                                        showDetail="true" showSummary="true"/>
+
+                            <h:panelGrid columns="4">
+                                <p:outputLabel for="nombre" value="Nombre"/>
+                                <p:inputText id="nombre" required="true" requiredMessage="El Nombre es un campo obligatorio"
+                                             validatorMessage="El nombre de la oportunidad no puede ser demasiado corto"
+                                             value="#{oportunidadController.oportunidad.nombre}">
+                                    <f:validateLength minimum="10" maximum="50"/>
+                                </p:inputText>
+                                <p:message for="nombre"/>
+                                <p:tooltip for="nombre" value="Escriba el nombre que va a tener la oportunidad de aprendizaje"/>
+
+                                <p:outputLabel for="fechaInicio" value="Fecha de Inicio"/>
+                                <p:calendar id="fechaInicio" required="true" requiredMessage="La Fecha de Inicio es un campo obligatorio"
+                                            value="#{oportunidadController.oportunidad.fechaInicio}" pattern="dd/MM/yyyy HH:mm:ss">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </p:calendar>
+                                <p:message for="fechaInicio"/>
+                                <p:tooltip for="fechaInicio" value="Especifique en este campo la fecha y hora de inicio para la oportunidad"/>
+
+                                <p:outputLabel for="fechaFin" value="Fecha de Finalización"/>
+                                <p:calendar id="fechaFin" required="true" requiredMessage="La Fecha de Finalización es un campo obligatorio"
+                                            value="#{oportunidadController.oportunidad.fechaFin}" pattern="dd/MM/yyyy HH:mm:ss">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </p:calendar>
+                                <p:message for="fechaFin"/>
+                                <p:tooltip for="fechaFin" value="Especifique en este campo la fecha y hora de finaización para la oportunidad"/>
+
+                                <p:outputLabel for="tipos" value="Tipo"/>
+                                <p:selectOneMenu id="tipos" required="true" requiredMessage="La Descripción es un campo obligatorio"
+                                                 value="#{oportunidadController.oportunidad.tipoOportunidadID}"
+                                                 converter="tipoOportunidadConverter">
+                                    <f:selectItems var="tipo" value="#{oportunidadController.tiposDeOportunidad}"
+                                                   itemLabel="#{tipo.descripcion}" itemValue="#{tipo}"/>
+                                </p:selectOneMenu>
+                                <p:message for="tipos"/>
+                                <p:tooltip for="tipos" value="Seleccione el tipo de oportunidad"/>
+
+                                <p:outputLabel for="usuarios" value="Agentes"/>
+                                <p:selectCheckboxMenu label="Agentes" id="usuarios" required="true" requiredMessage="Debe seleccionar al menos un agente para la oportunidad de aprendizaje"
+                                                      value="#{oportunidadController.usuarios}"
+                                                      converter="usuarioConverter">
+                                    <f:selectItems var="user" value="#{usuarioController.listarUsuarios()}"
+                                                   itemLabel="#{user.apellido} #{user.nombre}" itemValue="#{user}"/>
+
+                                </p:selectCheckboxMenu>
+                                <p:message for="usuarios"/>
+                                <p:tooltip for="usuarios" value="Selecione al menos un agente para la oportunidad de aprendizaje"/>
+
+                                <p:outputLabel for="descripcion" value="Descripción"/>
+                                <p:inputTextarea id="descripcion" required="true" requiredMessage="La Descripción es un campo obligatorio"
+                                                 value="#{oportunidadController.oportunidad.descripcion}">
+                                    <f:validateLength minimum="10"/>
+                                </p:inputTextarea>
+                                <p:message for="descripcion"/>
+                                <p:tooltip for="descripcion" value="Especifique en este campo lo que debe realizar el agente"/>
+
+                                <p:commandButton id="editOp" value="Guardar Cambios"
+                                                 action="#{oportunidadController.editarOportunidad()}"
+                                                 update=":form:oportunityTable, :form:growlOportunities, f:growlEditOportunities"/>
+
+                                <p:commandButton value="Cerrar" immediate="true"
+                                                 onclick="PF('editarOportunidad').hide()" />
+                            </h:panelGrid>
+                        </h:form>
+                    </p:dialog>
+
+                    <p:dialog id="modalVerOportunidad" header="Ver Oportuniad" 
+                              modal="true" widgetVar="verOportunidad" draggable="false"
+                              showEffect="fade" hideEffect="fade" resizable="false"
+                              height="350" width="500" minHeight="150">
+
+                        <p:outputPanel>
+                            <p:panelGrid columns="2">
+                                <f:facet name="header">Detalle</f:facet>
+
+                                <h:outputText value="Nombre"/>
+                                <h:outputText value="#{oportunidadController.oportunidad.nombre}"/>
+
+                                <h:outputText value="Fecha de Inicio"/>
+                                <h:outputText value="#{oportunidadController.oportunidad.fechaInicio}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </h:outputText>
+
+                                <h:outputText value="Fecha de Finalización"/>
+                                <h:outputText value="#{oportunidadController.oportunidad.fechaFin}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                                </h:outputText>
+
+                                <h:outputText value="Descripción"/>
+                                <h:outputText value="#{oportunidadController.oportunidad.descripcion}"/>
+
+
+                            </p:panelGrid>
+                            <h:form rendered="#{incidenciaController.verificarRol() eq true }" id="ff">
+                                <p:growl id="growlEdit" showDetail="true" sticky="false" life="3000"/> 
+                                <p:messages severity="fatal,info,warn"
+                                            showDetail="true" showSummary="true"/>
+
+                                <h:panelGrid columns="2">
+                                    <p:outputLabel for="enviar" value="Enviar"/>
+                                    <p:inputTextarea id="enviar" value="#{oportunidadController.oportunidadUsuario.descripcion}" 
+                                                     cols="45" rows="5" required="true"/>
+
+                                    <p:outputLabel for="archivo" value=""/>
+                                    <p:fileUpload id="archivo" label="Seleccionar archivo" mode="simple" skinSimple="true"/>
+
+                                    <p:commandButton value="Enviar" update=":form:oportunityTable, :form:growlOportunities, ff:growlEdit"
+                                                     style="float: right;" action="#{oportunidadController.editarOportunidadUsuario()}"
+                                                     rendered="#{oportunidadController.oportunidadUsuario.estadoID.estadoID==2 eq false}"/>
+
+                                    <p:commandButton value="Cerrar" immediate="true"
+                                                     onclick="PF('verOportunidad').hide()" />
+                                </h:panelGrid>
+                            </h:form>
+                        </p:outputPanel>
+                    </p:dialog> 
+
+                </f:view>
+
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>
